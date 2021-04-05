@@ -24,7 +24,6 @@ do {
   let newGameInput = ''
   gameDisplay(highScorePlayercontent, playerName, nbGuess, HANGMANPICS)
   while (!isGameOver) {
-    console.log(wordToFind)
     console.log(`  ${wordDisplaySpace(wordDisplay)}\n`)
     inputLetter = game.playerInputcheck()
     isRightAnswer(inputLetter, wordToFind) ? wordDisplay = wordDisplayCheck(wordToFind, inputLetter, wordDisplay) : nbGuess--
