@@ -1,29 +1,16 @@
-const readlineSync = require('readline-sync')
 const chalk = require('chalk')
+const readlineSync = require('readline-sync')
 const { randomInt } = require('crypto')
 const fs = require('fs')
-const { lightgrey } = require('color-name')
 
 class Game {
 
-  //checking and reading files functions
-  checkFile(file) {
-    if (!fs.existsSync(file)) {
-      console.log(`Error: ${file} does not exist`)
-      process.exit(1)
-    }
-    const stats = fs.statSync(file)
-    if (!stats.isFile()) {
-      console.log(`Error: ${file} is not a file`)
-      process.exit(1)
-    }
-  }
-  readFile(file) {
-    this.checkFile(file)
-    return fs.readFileSync(`./${file}`, 'utf8')
+  constructor(wordsFile, scoreFile) {
+    this.scoreFile = scoreFile
+    this.wordsFile = wordsFile
   }
 
-  //functions for game values
+  // functions for game variables
   wordList(wordFileContent) {
     return (wordFileContent).split('\n')
   }
@@ -32,43 +19,43 @@ class Game {
     return wordList[randomIndex]
   }
   highScorePlayer(scoreFile) {
-    let highScorePlayer = JSON.parse(this.readFile(scoreFile))
+    let highScorePlayer = JSON.parse(scoreFile)
     return highScorePlayer
   }
 
   //player input
-  playerInput() {
-    let inputLetter = readlineSync.question('entrez une lettre : ')
-    this.playerInputCheck(inputLetter)
+
+  playerNameInput() {
+    let playerNameInput = readlineSync.question('  Entrez votre nom : ')
+    return playerNameInput
   }
-  playerInputCheck(input, wordToFind) {
-    console.log(input)
-    if (!(input.length === 1 && input.match(/[a-z]/i))) {
-      this.playerInput()
+  playerInputcheck() {
+    let inputLetter = ''
+    do {
+      inputLetter = readlineSync.question('  Entrez une lettre : ')
     }
-    //To do : for of sur wordToFind pour includes
-    if (wordToFind.includes(input)) {
-      return input
-    }
+    while (!(inputLetter.length === 1 && inputLetter.match(/[a-z]/i)))
+    return inputLetter
   }
 
-  //Display function
-  AsciiHangManDisplay() {
+  // end game check and writing score file
+  scoreCheck(nbGuessMax, nbGuess, highScorePlayercontent) {
+    if (highScorePlayercontent.score > (nbGuessMax - nbGuess))
+      return true
+  }
 
-  }
-  currentWordToFind(playerInput) {
-  }
-  gameDisplay(wordToFind, highScorePlayercontent) {
-    //console.clear()
-    console.log(`Meilleur score: ${highScorePlayercontent.name} ->\t${highScorePlayercontent.score} points`)
-    this.wordToFindDisplay(wordToFind)
-    this.AsciiHangManDisplay()
-    this.playerInput()
-  }
-  wordToFindDisplay(wordToFind, playerInput) {
-  }
-  // end game writing score file
-  scoreWrite(currentPlayer, currentScore) {
+  scoreWrite(nbGuessMax, nbGuess, playerName, highScorePlayercontent) {
+    if (this.scoreCheck(nbGuessMax, nbGuess, highScorePlayercontent)) {
+      let currentScore = nbGuessMax - nbGuess
+      highScorePlayercontent = {
+        'name': playerName,
+        'score': currentScore
+      }
+      console.log(chalk.greenBright('  Vous detenez maintenant le meilleurs score'))
+      const data = JSON.stringify(highScorePlayercontent)
+      fs.writeFileSync('score.json', data)
+    }
   }
 }
+
 module.exports = Game
